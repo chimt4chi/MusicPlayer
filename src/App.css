@@ -45,6 +45,11 @@ body {
   margin-bottom: 5px;
   border-radius: 5px;
   background-color: #bd8585;
+  position: absolute;
+  /* display: flex; */
+  width: 100%;
+  bottom: 0;
+  left: 0;
 }
 
 .audioPlayer {

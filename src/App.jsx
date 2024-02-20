@@ -174,9 +174,12 @@ const MusicPlayer = () => {
         accept="audio/*"
       />
       <ul className="playlist">
-        {songs.map((song) => (
+        {songs.map((song, index) => (
           <li className="songItem" key={song.id} onClick={() => playSong(song)}>
-            <span onClick={() => playSong(song)}>{song.title}</span>
+            <span onClick={() => playSong(song)}>
+              {index + 1}. {""}
+              {song.title}
+            </span>
             <button onClick={() => deleteSong(song.id)}>🗑️</button>
           </li>
         ))}
