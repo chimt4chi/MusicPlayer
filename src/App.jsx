@@ -63,6 +63,17 @@ const MusicPlayer = () => {
     };
   };
 
+  const resumeLastPlayedSong = () => {
+    const lastPlayedId = localStorage.getItem("lastPlayedSongId");
+    const lastPlaybackPosition = localStorage.getItem("lastPlaybackPosition");
+    if (lastPlayedId) {
+      setLastPlayedSongId(parseInt(lastPlayedId, 10));
+    }
+
+    if (lastPlaybackPosition) {
+      setLastPlaybackPosition(parseFloat(lastPlaybackPosition));
+    }
+  };
   const handleFileSelect = (event) => {
     const fileInput = event.target;
     const files = fileInput.files;
@@ -132,30 +143,10 @@ const MusicPlayer = () => {
     setNowPlayingSong(songData);
   };
 
-  const resumeLastPlayedSong = () => {
-    const lastPlayedId = localStorage.getItem("lastPlayedSongId");
-    const lastPlaybackPosition = localStorage.getItem("lastPlaybackPosition");
-
-    if (lastPlayedId && !isNaN(lastPlayedId) && isFinite(lastPlayedId)) {
-      setLastPlayedSongId(parseInt(lastPlayedId, 10));
-    }
-
-    if (
-      lastPlaybackPosition &&
-      !isNaN(lastPlaybackPosition) &&
-      isFinite(lastPlaybackPosition)
-    ) {
-      setLastPlaybackPosition(parseFloat(lastPlaybackPosition));
-    }
-  };
-
   const handleTimeUpdate = () => {
-    if (audioRef.current && lastPlayedSongId) {
+    if (audioRef.current) {
       const currentTime = audioRef.current.currentTime;
-
-      if (!isNaN(currentTime) && isFinite(currentTime)) {
-        localStorage.setItem("lastPlaybackPosition", currentTime.toString());
-      }
+      localStorage.setItem("lastPlaybackPosition", currentTime.toString());
     }
   };
 
@@ -174,43 +165,6 @@ const MusicPlayer = () => {
     };
   };
 
-  const playNextSong = () => {
-    const currentIndex = songs.findIndex(
-      (song) => song.id === lastPlayedSongId
-    );
-    const nextIndex = (currentIndex + 1) % songs.length;
-    const nextSong = songs[nextIndex];
-
-    if (nextSong) {
-      const blob = new Blob([nextSong.data], { type: "audio/*" });
-      const objectURL = URL.createObjectURL(blob);
-
-      if (audioRef.current) {
-        audioRef.current.src = objectURL;
-        audioRef.current.currentTime = 0; // Start from the beginning
-        // audioRef.current.play();
-      }
-
-      setLastPlayedSongId(nextSong.id);
-      localStorage.setItem("lastPlayedSongId", nextSong.id.toString());
-      setNowPlayingSong(nextSong);
-    }
-  };
-
-  useEffect(() => {
-    // Add event listener for audio ended
-    if (audioRef.current) {
-      audioRef.current.addEventListener("ended", playNextSong);
-    }
-
-    // Cleanup event listener on component unmount
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener("ended", playNextSong);
-      }
-    };
-  }, [audioRef, playNextSong]);
-
   return (
     <div className="container">
       <input
@@ -219,30 +173,24 @@ const MusicPlayer = () => {
         onChange={handleFileSelect}
         accept="audio/*"
       />
-      {nowPlayingSong && (
-        <div className="nowPlayingContainer">
-          <div className="nowPlaying">
-            Now Playing - {nowPlayingSong.title}
-            <audio
-              className="audioPlayer"
-              controls
-              src={audioSrc}
-              ref={audioRef}
-              onTimeUpdate={handleTimeUpdate}
-            ></audio>
-          </div>
-        </div>
-      )}
       <ul className="playlist">
         {songs.map((song) => (
           <li className="songItem" key={song.id} onClick={() => playSong(song)}>
             <span onClick={() => playSong(song)}>{song.title}</span>
-            <button className="deleteBtn" onClick={() => deleteSong(song.id)}>
-              🗑️
-            </button>
+            <button onClick={() => deleteSong(song.id)}>🗑️</button>
           </li>
         ))}
       </ul>
+      <div className="nowPlaying">
+        {nowPlayingSong && <div>Now Playing - {nowPlayingSong.title}</div>}
+        <audio
+          className="audioPlayer"
+          controls
+          src={audioSrc}
+          ref={audioRef}
+          onTimeUpdate={handleTimeUpdate}
+        ></audio>
+      </div>
     </div>
   );
 };
