@@ -14,10 +14,8 @@ const MusicPlayer = () => {
   useEffect(() => {
     openDatabase();
     resumeLastPlayedSong();
-    // Add event listener for beforeunload
     window.addEventListener("beforeunload", handleBeforeUnload);
 
-    // Cleanup event listener on component unmount
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
@@ -33,7 +31,6 @@ const MusicPlayer = () => {
   }, [songs, lastPlayedSongId, lastPlaybackPosition]);
 
   const handleBeforeUnload = () => {
-    // Close the database connection before the page is unloaded
     if (db) {
       db.close();
     }
@@ -131,7 +128,6 @@ const MusicPlayer = () => {
     const blob = new Blob([songData.data], { type: "audio/*" });
     const objectURL = URL.createObjectURL(blob);
 
-    // Update the audio source directly
     if (audioRef.current) {
       audioRef.current.src = objectURL;
       audioRef.current.currentTime = startTime;
@@ -142,10 +138,8 @@ const MusicPlayer = () => {
     localStorage.setItem("lastPlayedSongId", songData.id.toString());
     setNowPlayingSong(songData);
 
-    // Find the index of the current song in the playlist
     const currentIndex = songs.findIndex((s) => s.id === songData.id);
 
-    // Check if there is a next song in the playlist
     if (currentIndex < songs.length - 1) {
       const nextSong = songs[currentIndex + 1];
       setAudioSrc(
@@ -188,12 +182,11 @@ const MusicPlayer = () => {
       const objectURL = URL.createObjectURL(blob);
 
       if (audioRef.current) {
-        // Pause and wait for the audio to be ready before changing the source
         audioRef.current.pause();
         audioRef.current.onended = () => {
           audioRef.current.src = objectURL;
-          audioRef.current.currentTime = 0; // Start from the beginning
-          audioRef.current.onended = null; // Remove the onended callback
+          audioRef.current.currentTime = 0;
+          audioRef.current.onended = null;
           audioRef.current.play();
         };
       }
@@ -209,12 +202,10 @@ const MusicPlayer = () => {
       playNextSong();
     };
 
-    // Add event listener for audio ended
     if (audioRef.current) {
       audioRef.current.addEventListener("ended", handleEnded);
     }
 
-    // Cleanup event listener on component unmount
     return () => {
       if (audioRef.current) {
         audioRef.current.removeEventListener("ended", handleEnded);
@@ -253,7 +244,7 @@ const MusicPlayer = () => {
           src={audioSrc}
           ref={audioRef}
           onTimeUpdate={handleTimeUpdate}
-          onEnded={handleSongEnd} // Call handleSongEnd when the current song ends
+          onEnded={handleSongEnd}
         ></audio>
       </div>
     </div>
