@@ -135,12 +135,23 @@ const MusicPlayer = () => {
     if (audioRef.current) {
       audioRef.current.src = objectURL;
       audioRef.current.currentTime = startTime;
-      // audioRef.current.play();
+      audioRef.current.play();
     }
 
     setLastPlayedSongId(songData.id);
     localStorage.setItem("lastPlayedSongId", songData.id.toString());
     setNowPlayingSong(songData);
+
+    // Find the index of the current song in the playlist
+    const currentIndex = songs.findIndex((s) => s.id === songData.id);
+
+    // Check if there is a next song in the playlist
+    if (currentIndex < songs.length - 1) {
+      const nextSong = songs[currentIndex + 1];
+      setAudioSrc(
+        URL.createObjectURL(new Blob([nextSong.data], { type: "audio/*" }))
+      );
+    }
   };
 
   const handleTimeUpdate = () => {
@@ -163,6 +174,56 @@ const MusicPlayer = () => {
     request.onerror = (event) => {
       console.error("Error deleting song:", event.target.errorCode);
     };
+  };
+
+  const playNextSong = () => {
+    const currentIndex = songs.findIndex(
+      (song) => song.id === lastPlayedSongId
+    );
+    const nextIndex = (currentIndex + 1) % songs.length;
+    const nextSong = songs[nextIndex];
+
+    if (nextSong) {
+      const blob = new Blob([nextSong.data], { type: "audio/*" });
+      const objectURL = URL.createObjectURL(blob);
+
+      if (audioRef.current) {
+        // Pause and wait for the audio to be ready before changing the source
+        audioRef.current.pause();
+        audioRef.current.onended = () => {
+          audioRef.current.src = objectURL;
+          audioRef.current.currentTime = 0; // Start from the beginning
+          audioRef.current.onended = null; // Remove the onended callback
+          audioRef.current.play();
+        };
+      }
+
+      setLastPlayedSongId(nextSong.id);
+      localStorage.setItem("lastPlayedSongId", nextSong.id.toString());
+      setNowPlayingSong(nextSong);
+    }
+  };
+
+  useEffect(() => {
+    const handleEnded = () => {
+      playNextSong();
+    };
+
+    // Add event listener for audio ended
+    if (audioRef.current) {
+      audioRef.current.addEventListener("ended", handleEnded);
+    }
+
+    // Cleanup event listener on component unmount
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener("ended", handleEnded);
+      }
+    };
+  }, [audioRef, playNextSong]);
+
+  const handleSongEnd = () => {
+    playNextSong();
   };
 
   return (
@@ -192,6 +253,7 @@ const MusicPlayer = () => {
           src={audioSrc}
           ref={audioRef}
           onTimeUpdate={handleTimeUpdate}
+          onEnded={handleSongEnd} // Call handleSongEnd when the current song ends
         ></audio>
       </div>
     </div>
