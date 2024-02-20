@@ -1,0 +1,53 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.fileInput {
+  margin-bottom: 10px;
+}
+
+.playlist {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.songItem {
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background-color: #999;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nowPlaying {
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background-color: #bd8585;
+}
+
+.audioPlayer {
+  width: 100%;
+  margin-top: 20px;
+}
