@@ -129,6 +129,7 @@ const MusicPlayer = () => {
     const objectURL = URL.createObjectURL(blob);
 
     if (audioRef.current) {
+      await audioRef.current.pause();
       audioRef.current.src = objectURL;
       audioRef.current.currentTime = startTime;
       await audioRef.current.play();
@@ -218,7 +219,7 @@ const MusicPlayer = () => {
       />
       <ul className="playlist">
         {songs.map((song, index) => (
-          <li className="songItem" key={song.id} onClick={() => playSong(song)}>
+          <li className="songItem" key={song.id}>
             <span onClick={() => playSong(song)}>
               {index + 1}. {""}
               {song.title}
@@ -227,17 +228,21 @@ const MusicPlayer = () => {
           </li>
         ))}
       </ul>
-      <div className="nowPlaying">
-        {nowPlayingSong && <div>Now Playing - {nowPlayingSong.title}</div>}
-        <audio
-          className="audioPlayer"
-          controls
-          src={audioSrc}
-          ref={audioRef}
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={handleSongEnd}
-        ></audio>
-      </div>
+      {nowPlayingSong && (
+        <div className="nowPlaying">
+          <>
+            <div>{nowPlayingSong.title}</div>
+            <audio
+              className="audioPlayer"
+              controls
+              src={audioSrc}
+              ref={audioRef}
+              onTimeUpdate={handleTimeUpdate}
+              onEnded={handleSongEnd}
+            ></audio>
+          </>
+        </div>
+      )}
     </div>
   );
 };

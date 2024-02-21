@@ -44,12 +44,19 @@ body {
   border: 1px solid #ccc;
   margin-bottom: 5px;
   border-radius: 5px;
-  background-color: #bd8585;
+  background-color: #1e1e1e;
   position: absolute;
-  /* display: flex; */
+  display: flex;
   width: 100%;
   bottom: 0;
   left: 0;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .nowPlaying {
+    display: block;
+  }
 }
 
 .audioPlayer {
